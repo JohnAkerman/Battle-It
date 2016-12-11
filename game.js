@@ -11,7 +11,7 @@ function setup() {
 }
 
 function draw() {
-	background(0, 25);
+	background(0, 35);
 
 	// Updates
 	player.update();
