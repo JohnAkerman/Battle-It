@@ -3,8 +3,10 @@ function Particle(x,y, doesDamage) {
 
     this.active = true;
     this.draw = true;
-    this.maxDistance = 100;
+    this.maxDistance = 1000;
     this.lifeSpan = 200;
+    this.startLifeSpan = this.lifeSpan;
+    this.damageValue = 20;
 
     this.pos = createVector(x,y);
     this.beginPos = createVector(x, y);
@@ -18,12 +20,25 @@ function Particle(x,y, doesDamage) {
         this.accel.add(f);
     }
 
+    this.checkCollision = function (obj) {
+        var d = this.pos.dist(obj.pos);
+        console.log(d);
+
+        if (d < this.radius + obj.radius) {
+            this.active = false;
+            this.draw = false;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     this.update = function() {
         if (!this.active) return;
 
         this.lifeSpan--;
 
-        var d = Math.abs(dist(this.pos, this.beginPos));
+        var d = Math.abs(this.pos.dist(this.beginPos));
 
         if (d >= this.maxDistance || this.lifeSpan <= 0) {
             this.active = false;
@@ -35,12 +50,21 @@ function Particle(x,y, doesDamage) {
         this.accel.mult(0);
 
         this.checkBounds();
+
+        if (this.startLifeSpan - this.lifeSpan > 5 && this.checkCollision(player)) {
+            //player.doDamage(this.damageValue);
+        }
     }
 
     this.render = function() {
         stroke(this.color);
         strokeWeight(this.radius);
-        point(this.pos.x, this.pos.y);
+        point(this.pos.x + this.radius / 2, this.pos.y + this.radius / 2);
+
+        noStroke();
+        fill(255,255,255);
+        textSize(14);
+        text("L:" + this.lifeSpan, this.pos.x, this.pos.y + 20);
     }
 
     this.checkBounds = function() {

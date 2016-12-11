@@ -4,6 +4,7 @@ function Player() {
     this.accel = createVector(0,0);
     this.w = 20;
     this.h = 20;
+    this.radius = 20;
     this.wHalf = this.w * .5;
     this.hHalf = this.h * .5;
     this.sizeInc = 3;
@@ -28,14 +29,21 @@ function Player() {
     this.render = function() {
         noStroke();
         fill(0,0,255);
-        rect(this.pos.x, this.pos.y, this.w, this.h);
+        push();
+        translate(this.pos.x - this.wHalf, this.pos.y - this.hHalf);
+        rect(0, 0, this.w, this.h);
+        pop();
+
+        fill(255,0,0,100);
+        ellipse(this.pos.x, this.pos.y, this.radius);
 
         stroke(255,0,0);
-        line(this.pos.x + this.hHalf, this.pos.y + this.wHalf, mouseX, mouseY)
+        strokeWeight(1);
+        line(this.pos.x, this.pos.y, mouseX, mouseY)
 
         noStroke();
         push();
-        translate(this.pos.x + this.hHalf, this.pos.y + this.wHalf);
+        translate(this.pos.x, this.pos.y);
         rotate(this.turrentAngle);
         fill(255,255,255);
         rect(-this.turretWHalf, 0, this.turretW, this.turretH);
