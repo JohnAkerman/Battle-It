@@ -22,7 +22,6 @@ function Particle(x,y, doesDamage) {
 
     this.checkCollision = function (obj) {
         var d = this.pos.dist(obj.pos);
-        console.log(d);
 
         if (d < this.radius + obj.radius) {
             this.active = false;
@@ -52,7 +51,7 @@ function Particle(x,y, doesDamage) {
         this.checkBounds();
 
         if (this.startLifeSpan - this.lifeSpan > 5 && this.checkCollision(player)) {
-            //player.doDamage(this.damageValue);
+            player.doDamage(this.damageValue);
         }
     }
 
@@ -61,10 +60,12 @@ function Particle(x,y, doesDamage) {
         strokeWeight(this.radius);
         point(this.pos.x + this.radius / 2, this.pos.y + this.radius / 2);
 
-        noStroke();
-        fill(255,255,255);
-        textSize(14);
-        text("L:" + this.lifeSpan, this.pos.x, this.pos.y + 20);
+        if (DEBUG) {
+            noStroke();
+            fill(255,255,255);
+            textSize(14);
+            text("L:" + this.lifeSpan, this.pos.x, this.pos.y + 20);
+        }
     }
 
     this.checkBounds = function() {

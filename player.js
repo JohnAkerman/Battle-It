@@ -16,6 +16,60 @@ function Player() {
     this.turretWHalf = this.turretW / 2;
     this.turretHHalf = this.turretH / 2;
 
+    this.health = 100;
+    this.maxHealth = this.health;
+
+    this.shield = 20;
+    this.maxShield = this.shield;
+
+    this.indicatorBarWidth = 32;
+
+    this.respawn = function() {
+        this.shield = this.maxShield;
+        this.health = this.maxHealth;
+        this.pos = createVector(random(10, width), random(10, height));
+        this.vel.mult(0);
+        this.accel.mult(0);
+    }
+
+    this.renderHealth = function() {
+        // Background grey
+        stroke(0,0,0)
+        strokeWeight(1);
+        fill(88,88,88);
+        rect(this.pos.x - 15, this.pos.y - 25, this.indicatorBarWidth, 5);
+
+        noStroke();
+        fill(222,2,2);
+
+        var statPercentage = this.health / this.maxHealth;
+        var barWidth = floor(statPercentage * this.indicatorBarWidth);
+        rect(this.pos.x - 14, this.pos.y - 24, barWidth, 4);
+    }
+
+    this.renderShield = function() {
+        // Background grey
+        stroke(0,0,0)
+        strokeWeight(1);
+        fill(88,88,88);
+        rect(this.pos.x - 15, this.pos.y - 35, this.indicatorBarWidth, 5);
+
+        noStroke();
+        fill(77, 124, 153);
+
+        var statPercentage = this.shield / this.maxShield;
+        var barWidth = floor(statPercentage * this.indicatorBarWidth);
+        rect(this.pos.x - 14, this.pos.y - 34, barWidth -1, 4);
+    }
+
+    this.doDamage = function(val) {
+        this.health -= val;
+
+        if (this.health <= 0) {
+            this.respawn();
+        }
+    }
+
     this.update = function() {
         this.vel.add(this.accel);
         this.pos.add(this.vel);
@@ -34,12 +88,18 @@ function Player() {
         rect(0, 0, this.w, this.h);
         pop();
 
-        fill(255,0,0,100);
-        ellipse(this.pos.x, this.pos.y, this.radius);
+        if (DEBUG) {
+            fill(255,0,0,100);
+            ellipse(this.pos.x, this.pos.y, this.radius);
 
-        stroke(255,0,0);
-        strokeWeight(1);
-        line(this.pos.x, this.pos.y, mouseX, mouseY)
+            stroke(255,0,0);
+            strokeWeight(1);
+            line(this.pos.x, this.pos.y, mouseX, mouseY)
+
+            noStroke();
+            fill(255,255,255);
+            text("Health: - " + this.health, 0, 10);
+        }
 
         noStroke();
         push();
@@ -49,6 +109,8 @@ function Player() {
         rect(-this.turretWHalf, 0, this.turretW, this.turretH);
         pop();
 
+        this.renderHealth();
+        this.renderShield();
     }
 
     this.applyForce = function(f) {

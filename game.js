@@ -1,6 +1,8 @@
 var player;
 var bullets = [];
 
+var DEBUG = true;
+
 function setup() {
 	var ctx = createCanvas(1600, 900);
 	var x = (windowWidth - width) / 2;
@@ -13,6 +15,7 @@ function setup() {
 
 function draw() {
 	background(0, 255);
+	background(29, 29, 29);
 
 	// Updates
 	for (var i = bullets.length - 1; i >= 0; i--) {
@@ -41,6 +44,8 @@ function keyPressed() {
 		player.applyForce(createVector(1, 0));
 	} else if (keyCode === LEFT_ARROW) {
 		player.applyForce(createVector(-1, 0));
+	} else if (keyCode === 32) {  // Space
+		DEBUG = !DEBUG;
 	}
 }
 
