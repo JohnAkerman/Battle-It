@@ -47,11 +47,6 @@ function Player() {
         this.accel.add(f);
     }
 
-    this.increaseSize = function() {
-        this.w += this.sizeInc;
-        this.h += this.sizeInc;
-    }
-
     this.checkBounds = function() {
         reset = false;
         if (this.pos.x < 0) { this.pos.x = 0; reset = true; this.vel.x *= -1; }
@@ -61,8 +56,7 @@ function Player() {
         else if (this.pos.y + this.h >= height) { this.pos.y = height - this.h; reset = true; this.vel.y *= -1;  }
 
         if (reset) {
-            this.accel.mult(0);
-            this.increaseSize();
+            // this.accel.mult(0);
         }
     }
 }

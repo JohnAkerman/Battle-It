@@ -1,4 +1,5 @@
 var player;
+var bullets = [];
 
 function setup() {
 	var ctx = createCanvas(1600, 900);
@@ -11,12 +12,22 @@ function setup() {
 }
 
 function draw() {
-	background(0, 35);
+	background(0, 255);
 
 	// Updates
-	player.update();
+	for (var i = bullets.length - 1; i >= 0; i--) {
+		bullets[i].update();
+		if (bullets[i].active == false) {
+			bullets.splice(i, 1);
+		}
+	}
 
+	player.update();
 	// Render
+	for (var i = 0; i < bullets.length; i++) {
+		bullets[i].render();
+	}
+
 	player.render();
 }
 
@@ -31,4 +42,12 @@ function keyPressed() {
 	} else if (keyCode === LEFT_ARROW) {
 		player.applyForce(createVector(-1, 0));
 	}
+}
+
+function mousePressed() {
+	var b = new Particle(player.pos.x, player.pos.y);
+	var bForce = createVector(-sin(player.turrentAngle), cos(player.turrentAngle));
+	bForce.mult(10);
+	b.applyForce(bForce);
+	bullets.push(b);
 }
