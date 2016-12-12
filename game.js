@@ -1,7 +1,14 @@
 var player;
 var bullets = [];
 
-var DEBUG = true;
+var playerImage, playerTurret;
+
+var DEBUG = false;
+
+function preload() {
+	playerImage = loadImage("assets/player/player.png");
+	playerTurret = loadImage("assets/player/turret.png");
+}
 
 function setup() {
 	var ctx = createCanvas(1600, 900);
@@ -24,35 +31,52 @@ function draw() {
 			bullets.splice(i, 1);
 		}
 	}
-
 	player.update();
-	// Render
+
+	//Render
 	for (var i = 0; i < bullets.length; i++) {
 		bullets[i].render();
 	}
-
 	player.render();
 }
 
 
 function keyPressed() {
 	if (keyCode === UP_ARROW) {
+		player.vel.x *= 0.1
 		player.applyForce(createVector(0, -1));
+		player.dir = 2;
 	} else if (keyCode === DOWN_ARROW) {
+		player.vel.x *= 0.1;
 		player.applyForce(createVector(0, 1));
+		player.dir = 0;
 	} else if (keyCode === RIGHT_ARROW) {
+		player.vel.y *= 0.1
 		player.applyForce(createVector(1, 0));
+		player.dir = 3;
 	} else if (keyCode === LEFT_ARROW) {
+		player.vel.y *= 0.1
 		player.applyForce(createVector(-1, 0));
+		player.dir = 1;
 	} else if (keyCode === 32) {  // Space
 		DEBUG = !DEBUG;
 	}
 }
 
 function mousePressed() {
+	player.firing = 1;
 	var b = new Particle(player.pos.x, player.pos.y);
 	var bForce = createVector(-sin(player.turrentAngle), cos(player.turrentAngle));
 	bForce.mult(10);
 	b.applyForce(bForce);
 	bullets.push(b);
+}
+
+function mouseClicked() {
+	// player.firing = 1;
+
+}
+
+function mouseReleased() {
+	player.firing = 0;
 }

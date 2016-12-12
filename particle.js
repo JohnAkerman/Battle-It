@@ -3,7 +3,7 @@ function Particle(x,y, doesDamage) {
 
     this.active = true;
     this.draw = true;
-    this.maxDistance = 1000;
+    this.maxDistance = 10000;
     this.lifeSpan = 200;
     this.startLifeSpan = this.lifeSpan;
     this.damageValue = 20;

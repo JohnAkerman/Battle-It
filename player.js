@@ -2,12 +2,15 @@ function Player() {
     this.pos = createVector(width * .5, height * .5);
     this.vel = createVector(0, 0);
     this.accel = createVector(0,0);
-    this.w = 20;
-    this.h = 20;
-    this.radius = 20;
+    this.w = 48;
+    this.h = 48;
+    this.radius = 48;
     this.wHalf = this.w * .5;
     this.hHalf = this.h * .5;
     this.sizeInc = 3;
+
+    this.dir = 3;
+    this.firing = 0;
 
     this.turrentAngle = createVector(0, 0);
 
@@ -37,14 +40,14 @@ function Player() {
         stroke(0,0,0)
         strokeWeight(1);
         fill(88,88,88);
-        rect(this.pos.x - 15, this.pos.y - 25, this.indicatorBarWidth, 5);
+        rect(this.pos.x - 15, this.pos.y - 30, this.indicatorBarWidth, 5);
 
         noStroke();
         fill(222,2,2);
 
         var statPercentage = this.health / this.maxHealth;
         var barWidth = floor(statPercentage * this.indicatorBarWidth);
-        rect(this.pos.x - 14, this.pos.y - 24, barWidth, 4);
+        rect(this.pos.x - 14, this.pos.y - 29, barWidth, 4);
     }
 
     this.renderShield = function() {
@@ -52,14 +55,14 @@ function Player() {
         stroke(0,0,0)
         strokeWeight(1);
         fill(88,88,88);
-        rect(this.pos.x - 15, this.pos.y - 35, this.indicatorBarWidth, 5);
+        rect(this.pos.x - 15, this.pos.y - 40, this.indicatorBarWidth, 5);
 
         noStroke();
         fill(77, 124, 153);
 
         var statPercentage = this.shield / this.maxShield;
         var barWidth = floor(statPercentage * this.indicatorBarWidth);
-        rect(this.pos.x - 14, this.pos.y - 34, barWidth -1, 4);
+        rect(this.pos.x - 14, this.pos.y - 39, barWidth -1, 4);
     }
 
     this.doDamage = function(val) {
@@ -84,8 +87,9 @@ function Player() {
         noStroke();
         fill(0,0,255);
         push();
-        translate(this.pos.x - this.wHalf, this.pos.y - this.hHalf);
-        rect(0, 0, this.w, this.h);
+        translate(this.pos.x, this.pos.y);
+        rotate(radians(this.dir * 90));
+        image(playerImage, 0,0, 48,48, -24, -24, 48, 48);
         pop();
 
         if (DEBUG) {
@@ -105,8 +109,8 @@ function Player() {
         push();
         translate(this.pos.x, this.pos.y);
         rotate(this.turrentAngle);
-        fill(255,255,255);
-        rect(-this.turretWHalf, 0, this.turretW, this.turretH);
+        translate(-24, -14);
+        image(playerTurret, this.firing * 48, 0, 48, 0, 0, 0, 48, 48);
         pop();
 
         this.renderHealth();
