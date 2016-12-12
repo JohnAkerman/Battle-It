@@ -3,7 +3,7 @@ function Particle(x,y, doesDamage) {
 
     this.active = true;
     this.draw = true;
-    this.maxDistance = 10000;
+    this.maxDistance = 1000;
     this.lifeSpan = 200;
     this.startLifeSpan = this.lifeSpan;
     this.damageValue = 20;
@@ -14,6 +14,7 @@ function Particle(x,y, doesDamage) {
     this.vel = createVector(0, 0);
     this.accel = createVector(0,0);
     this.radius = 3;
+    this.diameter = this.radius / 2;
     this.color = color(255,255,255);
 
     this.applyForce = function(f) {
@@ -23,7 +24,7 @@ function Particle(x,y, doesDamage) {
     this.checkCollision = function (obj) {
         var d = this.pos.dist(obj.pos);
 
-        if (d < this.radius + obj.radius) {
+        if (d < this.diameter + obj.diameter) {
             this.active = false;
             this.draw = false;
             return true;

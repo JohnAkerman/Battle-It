@@ -72,11 +72,6 @@ function mousePressed() {
 	bullets.push(b);
 }
 
-function mouseClicked() {
-	// player.firing = 1;
-
-}
-
 function mouseReleased() {
 	player.firing = 0;
 }

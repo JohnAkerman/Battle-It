@@ -5,6 +5,7 @@ function Player() {
     this.w = 48;
     this.h = 48;
     this.radius = 48;
+    this.diameter = this.radius / 2;
     this.wHalf = this.w * .5;
     this.hHalf = this.h * .5;
     this.sizeInc = 3;
@@ -128,9 +129,5 @@ function Player() {
 
         if (this.pos.y < 0) { this.pos.y = 0; reset = true; this.vel.y *= -1; }
         else if (this.pos.y + this.h >= height) { this.pos.y = height - this.h; reset = true; this.vel.y *= -1;  }
-
-        if (reset) {
-            // this.accel.mult(0);
-        }
     }
 }
