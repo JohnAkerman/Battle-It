@@ -1,5 +1,6 @@
 var player;
 var bullets = [];
+var explosions = [];
 
 var playerImage, playerTurret;
 
@@ -31,6 +32,13 @@ function draw() {
 			bullets.splice(i, 1);
 		}
 	}
+
+	for (var i = explosions.length - 1; i >= 0; i--) {
+		explosions[i].update();
+		if (explosions[i].active == false) {
+			explosions.splice(i, 1);
+		}
+	}
 	player.update();
 
 	//Render
@@ -38,8 +46,11 @@ function draw() {
 		bullets[i].render();
 	}
 	player.render();
-}
 
+	for (var i = 0; i < explosions.length; i++) {
+		explosions[i].render();
+	}
+}
 
 function keyPressed() {
 	if (keyCode === UP_ARROW) {
@@ -65,7 +76,8 @@ function keyPressed() {
 
 function mousePressed() {
 	player.firing = 1;
-	var b = new Particle(player.pos.x, player.pos.y);
+	var b = new Particle(player.pos.x, player.pos.y, null, null, null, 3, true);
+
 	var bForce = createVector(-sin(player.turrentAngle), cos(player.turrentAngle));
 	bForce.mult(10);
 	b.applyForce(bForce);

@@ -1,21 +1,20 @@
-function Particle(x,y, doesDamage) {
-    this.doesDamage = doesDamage || false;
-
+function Particle(x, y, damageValue, colorVal, lifeSpan, radius, canSpawnParticles) {
     this.active = true;
     this.draw = true;
-    this.maxDistance = 1000;
-    this.lifeSpan = 200;
+    this.maxDistance = 10000;
+    this.lifeSpan = lifeSpan || 200;
     this.startLifeSpan = this.lifeSpan;
-    this.damageValue = 20;
+    this.damageValue = damageValue || 0;
+    this.canSpawnParticles = canSpawnParticles || false;
 
     this.pos = createVector(x,y);
     this.beginPos = createVector(x, y);
 
     this.vel = createVector(0, 0);
     this.accel = createVector(0,0);
-    this.radius = 3;
+    this.radius = radius;
     this.diameter = this.radius / 2;
-    this.color = color(255,255,255);
+    this.color = colorVal || color(255,255,255);
 
     this.applyForce = function(f) {
         this.accel.add(f);
@@ -53,6 +52,15 @@ function Particle(x,y, doesDamage) {
 
         if (this.startLifeSpan - this.lifeSpan > 5 && this.checkCollision(player)) {
             player.doDamage(this.damageValue);
+
+            // Create explosion
+            if (this.canSpawnParticles) {
+                var spark = new Particle(this.pos.x, this.pos.y, 0, color(173, 94, 11, 200), random(13,15), random(5,9), false);
+                explosions.push(spark);
+
+                spark = new Particle(this.pos.x + random(-5,5), this.pos.y + random(-5, 5), 0, color(206, 149, 18, 200), random(13, 15), random(5,9), false);
+                explosions.push(spark);
+            }
         }
     }
 
