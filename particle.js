@@ -73,7 +73,7 @@ function Particle(x, y, damageValue, colorVal, lifeSpan, radius, canSpawnParticl
             noStroke();
             fill(255,255,255);
             textSize(14);
-            text("L:" + this.lifeSpan, this.pos.x, this.pos.y + 20);
+            text("L:" + floor(this.lifeSpan), this.pos.x, this.pos.y + 20);
         }
     }
 
