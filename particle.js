@@ -56,8 +56,8 @@ function Particle(x, y, damageValue, colorVal, lifeSpan, radius, canSpawnParticl
 
         this.checkBounds();
 
-        if (this.startLifeSpan - this.lifeSpan > 5 && this.checkCollision(player)) {
-            player.doDamage(this.damageValue);
+        if (this.startLifeSpan - this.lifeSpan > 15 && this.checkCollision(player)) {
+            //player.doDamage(this.damageValue);
 
             // Create explosion
             if (this.canSpawnParticles) {
@@ -78,6 +78,10 @@ function Particle(x, y, damageValue, colorVal, lifeSpan, radius, canSpawnParticl
             rotate(this.rotationAngle);
             image(lightMachineBullet, 0, 0);
             pop();
+        }
+        else if (this.particleType === "shell") {
+            fill(this.color);
+            rect(this.pos.x + this.diameter, this.pos.y + this.diameter, 15, 15);
         }
         else {
             stroke(this.color);

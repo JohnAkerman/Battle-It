@@ -83,6 +83,8 @@ function keyPressed() {
 		player.activeGun = 0;
 	} else if (keyCode === 50) { // 2
 		player.activeGun = 1;
+	} else if (keyCode === 51) { // 3
+		player.activeGun = 2;
 	}
 
 	if (DEBUG)
