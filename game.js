@@ -9,6 +9,7 @@ var DEBUG = false;
 function preload() {
 	playerImage = loadImage("assets/player/playerWithDamage.png");
 	playerTurret = loadImage("assets/player/turret.png");
+	lightMachineBullet = loadImage("assets/player/bullet.png");
 }
 
 function setup() {
@@ -26,6 +27,13 @@ function draw() {
 	background(29, 29, 29);
 
 	// Updates
+	if (mouseIsPressed && player.shootingCoolDown <= 0) {
+		fireWeapon();
+		player.shootingCoolDown = player.gunType[player.activeGun].coolDown;
+	}
+
+	player.shootingCoolDown--;
+
 	for (var i = bullets.length - 1; i >= 0; i--) {
 		bullets[i].update();
 		if (bullets[i].active == false) {
@@ -71,15 +79,29 @@ function keyPressed() {
 		player.dir = 1;
 	} else if (keyCode === 32) {  // Space
 		DEBUG = !DEBUG;
+	} else if (keyCode === 49) { // 1
+		player.activeGun = 0;
+	} else if (keyCode === 50) { // 2
+		player.activeGun = 1;
 	}
+
+	if (DEBUG)
+		console.log(keyCode);
 }
 
 function mousePressed() {
+	fireWeapon();
+}
+
+function fireWeapon() {
 	player.firing = 1;
-	var b = new Particle(player.pos.x + player.wHalf, player.pos.y + player.hHalf, 10, null, null, 3, true);
+
+	var activeGun = player.gunType[player.activeGun];
+
+	var b = new Particle(player.pos.x + player.wHalf, player.pos.y + player.hHalf, activeGun.damage, null, activeGun.lifeSpan, 3, true, activeGun.name, player.turretAngle, activeGun.bounce);
 	var bForce = createVector(-sin(player.turretAngle), cos(player.turretAngle));
 
-	bForce.mult(10);
+	bForce.mult(player.gunType[player.activeGun].projectileSpeed);
 	b.applyForce(bForce);
 	bullets.push(b);
 }

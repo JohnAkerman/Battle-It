@@ -32,6 +32,25 @@ function Player() {
 
     this.stationaryFrictionThreshold = 1.0;
 
+    this.gunType = [
+        {
+            name: 'light-machine',
+            coolDown: 3,
+            damage: 2,
+            lifeSpan: 200,
+            projectileSpeed: 22,
+            bounce: false
+        }, {
+            name: "heavy-machine",
+            coolDown: 15,
+            damage: 10,
+            lifeSpan: 200,
+            projectileSpeed: 10,
+            bounce: true
+        }
+    ];
+    this.shootingCoolDown = 0;
+    this.activeGun = 0;
 
     this.respawn = function() {
         this.shield = this.maxShield;

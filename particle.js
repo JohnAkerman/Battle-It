@@ -1,4 +1,4 @@
-function Particle(x, y, damageValue, colorVal, lifeSpan, radius, canSpawnParticles) {
+function Particle(x, y, damageValue, colorVal, lifeSpan, radius, canSpawnParticles, particleType, rotationAngle, bounce) {
     this.active = true;
     this.draw = true;
     this.maxDistance = 10000;
@@ -6,6 +6,9 @@ function Particle(x, y, damageValue, colorVal, lifeSpan, radius, canSpawnParticl
     this.startLifeSpan = this.lifeSpan;
     this.damageValue = damageValue || 0;
     this.canSpawnParticles = canSpawnParticles || false;
+    this.particleType = particleType;
+    this.rotationAngle = rotationAngle;
+    this.bounce = bounce || false;
 
     this.pos = createVector(x,y);
     this.beginPos = createVector(x, y);
@@ -58,19 +61,29 @@ function Particle(x, y, damageValue, colorVal, lifeSpan, radius, canSpawnParticl
 
             // Create explosion
             if (this.canSpawnParticles) {
-                var spark = new Particle(this.pos.x, this.pos.y, 0, color(173, 94, 11, 200), random(13,15), random(5,9), false);
+                var spark = new Particle(this.pos.x, this.pos.y, 0, color(173, 94, 11, 200), random(13,15), random(5,9), false, 'spark', 0, true);
                 explosions.push(spark);
 
-                spark = new Particle(this.pos.x + random(-5,5), this.pos.y + random(-5, 5), 0, color(206, 149, 18, 200), random(13, 15), random(5,9), false);
+                spark = new Particle(this.pos.x + random(-5,5), this.pos.y + random(-5, 5), 0, color(206, 149, 18, 200), random(13, 15), random(5,9), false, 'spark', 0, true);
                 explosions.push(spark);
             }
         }
     }
 
     this.render = function() {
-        stroke(this.color);
-        strokeWeight(this.radius);
-        point(this.pos.x + this.diameter, this.pos.y + this.diameter);
+
+        if (this.particleType === "light-machine") {
+            push();
+            translate(this.pos.x, this.pos.y);
+            rotate(this.rotationAngle);
+            image(lightMachineBullet, 0, 0);
+            pop();
+        }
+        else {
+            stroke(this.color);
+            strokeWeight(this.radius);
+            point(this.pos.x + this.diameter, this.pos.y + this.diameter);
+        }
 
         if (DEBUG) {
             noStroke();
@@ -87,15 +100,43 @@ function Particle(x, y, damageValue, colorVal, lifeSpan, radius, canSpawnParticl
     }
 
     this.checkBounds = function() {
-        reset = false;
-        if (this.pos.x < 0) { this.pos.x = 0; reset = true; this.vel.x *= -1; }
-        else if (this.pos.x + this.radius >= width) { this.pos.x = width - this.radius; reset = true; this.vel.x *= -1; }
 
-        if (this.pos.y < 0) { this.pos.y = 0; reset = true; this.vel.y *= -1; }
-        else if (this.pos.y + this.radius >= height) { this.pos.y = height - this.radius; reset = true; this.vel.y *= -1;  }
+        if (this.pos.x < 0) {
+            this.pos.x = 0;
+            if (this.bounce) {
+                this.vel.x *= -1;
+            } else {
+                this.vel.x = 0;
+                this.active = false;
+            }
+        }
+        else if (this.pos.x + this.radius >= width) {
+            this.pos.x = width - this.radius;
+            if (this.bounce) {
+                this.vel.x *= -1;
+            } else {
+                this.vel.x = 0;
+                this.active = false
+            }
+        }
 
-        if (reset) {
-            // this.accel.mult(0);
+        if (this.pos.y < 0) {
+            this.pos.y = 0;
+            if (this.bounce) {
+                this.vel.y *= -1;
+            } else {
+                this.vel.y = 0;
+                this.active = false
+            }
+        }
+        else if (this.pos.y + this.radius >= height) {
+            this.pos.y = height - this.radius;
+            if (this.bounce) {
+                this.vel.y *= -1;
+            } else {
+                this.vel.y = 0;
+                this.active = false
+            }
         }
     }
 
