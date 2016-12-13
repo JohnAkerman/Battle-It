@@ -28,6 +28,8 @@ function Player() {
 
     this.indicatorBarWidth = 32;
 
+    this.stationaryFrictionThreshold = 1.0;
+
     this.respawn = function() {
         this.shield = this.maxShield;
         this.health = this.maxHealth;
@@ -75,10 +77,18 @@ function Player() {
     }
 
     this.update = function() {
+        if ((this.dir === 2 || this.dir === 0) && this.vel.y <= this.stationaryFrictionThreshold) { // Moving Up or Down
+            this.accel.mult(0.5);
+        }
+        else if ((this.dir === 1 || this.dir === 3) && this.vel.x <= this.stationaryFrictionThreshold) { // Moving Left or Right
+            this.accel.mult(0.5);
+        }
+
         this.vel.add(this.accel);
         this.pos.add(this.vel);
         this.accel.mult(0);
 
+        this.vel.mult(0.99); // Friciton
         this.checkBounds();
 
         this.turretAngle = Math.atan2(mouseY - (this.pos.y + this.hHalf), mouseX - (this.pos.x  + this.wHalf)) - (PI / 2); // 90 deg
@@ -99,7 +109,8 @@ function Player() {
 
             noStroke();
             fill(255,255,255);
-            text("Health: - " + this.health, 0, 10);
+            text("Health: - " + this.health, 3, 10);
+            text("Velocity - X: " + roundToPlace(this.vel.x, 3) + " Y:  " + roundToPlace(this.vel.y, 3), 3, 25);
 
             // Collision position
             fill(255,50,0,50);
@@ -137,7 +148,10 @@ function Player() {
         else if (this.pos.y + this.h >= height) { this.pos.y = height - this.h; boundsHit = true; this.vel.y *= -1;  }
 
         if (boundsHit) {
-            this.doDamage(5);
+            var impactHighest = Math.abs((Math.abs(this.vel.x) > Math.abs(this.vel.y)) ? this.vel.x : this.vel.y);
+            impactHighest = constrain(Math.ceil(impactHighest), 1, 10);
+            this.doDamage(5 * impactHighest);
+            this.vel.mult(0.75);
         }
     }
 }
