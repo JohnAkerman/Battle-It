@@ -34,5 +34,8 @@ Down Arrow | Steer down
 Left Arrow | Steer Left
 Right Arrow | Steer Right
 Spacebar | Toggle debug mode  
-Mouse movement | Change angle of tank turret
-Mouse Left Click | Shoot tank turret
+Mouse Movement | Change angle of tank turret
+Mouse Left Click (Click or Hold) | Shoot tank turret
+1 | Select light machine gun
+2 | Select heavy machine gun
+3 | Select shell gun
