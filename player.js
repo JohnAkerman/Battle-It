@@ -49,11 +49,13 @@ function Player() {
             bounce: true
         }, {
             name: "shell",
-            coolDown: 30,
+            coolDown: 300,
             damage: 35,
             lifeSpan: 300,
             projectileSpeed: 3,
-            bounce: false
+            bounce: false,
+            w: 25,
+            h: 25
         }
     ];
     this.shootingCoolDown = 0;

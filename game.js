@@ -10,6 +10,7 @@ function preload() {
 	playerImage = loadImage("assets/player/playerWithDamage.png");
 	playerTurret = loadImage("assets/player/turret.png");
 	lightMachineBullet = loadImage("assets/player/bullet.png");
+	shell = loadImage("assets/player/shell.png");
 }
 
 function setup() {
@@ -91,16 +92,28 @@ function keyPressed() {
 		console.log(keyCode);
 }
 
-function mousePressed() {
-	fireWeapon();
-}
 
 function fireWeapon() {
 	player.firing = 1;
 
 	var activeGun = player.gunType[player.activeGun];
 
-	var b = new Particle(player.pos.x + player.wHalf, player.pos.y + player.hHalf, activeGun.damage, null, activeGun.lifeSpan, 3, true, activeGun.name, player.turretAngle, activeGun.bounce);
+	var particleData = {
+		x: player.pos.x + player.wHalf,
+		y: player.pos.y + player.hHalf,
+		damageValue: activeGun.damage,
+		colorVal: null,
+		lifeSpan: activeGun.lifeSpan,
+		radius: 3,
+		canSpawnParticles: true,
+		particleType: activeGun.name,
+		rotationAngle: player.turretAngle,
+		bounce: activeGun.bounce,
+		w: activeGun.w,
+		h: activeGun.h,
+	}
+
+	var b = new Particle(particleData);
 	var bForce = createVector(-sin(player.turretAngle), cos(player.turretAngle));
 
 	bForce.mult(player.gunType[player.activeGun].projectileSpeed);

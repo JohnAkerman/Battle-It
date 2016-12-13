@@ -1,23 +1,28 @@
-function Particle(x, y, damageValue, colorVal, lifeSpan, radius, canSpawnParticles, particleType, rotationAngle, bounce) {
+//function Particle(x, y, damageValue, colorVal, lifeSpan, radius, canSpawnParticles, particleType, rotationAngle, bounce) {
+function Particle(options) {
     this.active = true;
     this.draw = true;
     this.maxDistance = 10000;
-    this.lifeSpan = lifeSpan || 200;
+    this.lifeSpan = options.lifeSpan || 200;
     this.startLifeSpan = this.lifeSpan;
-    this.damageValue = damageValue || 0;
-    this.canSpawnParticles = canSpawnParticles || false;
-    this.particleType = particleType;
-    this.rotationAngle = rotationAngle;
-    this.bounce = bounce || false;
+    this.damageValue = options.damageValue || 0;
+    this.canSpawnParticles = options.canSpawnParticles || false;
+    this.particleType = options.particleType;
+    this.rotationAngle = options.rotationAngle;
+    this.bounce = options.bounce || false;
 
-    this.pos = createVector(x,y);
-    this.beginPos = createVector(x, y);
+    this.pos = createVector(options.x, options.y);
+    this.beginPos = createVector(options.x, options.y);
 
     this.vel = createVector(0, 0);
     this.accel = createVector(0,0);
-    this.radius = radius;
+    this.radius = options.radius;
     this.diameter = this.radius / 2;
-    this.color = colorVal || color(255,255,255);
+    this.color = options.colorVal || color(255,255,255);
+    this.w = options.w || this.diameter;
+    this.h = options.h || this.diameter;
+    this.wHalf = this.w / 2;
+    this.hHalf = this.h / 2;
 
     this.applyForce = function(f) {
         this.accel.add(f);
@@ -61,10 +66,31 @@ function Particle(x, y, damageValue, colorVal, lifeSpan, radius, canSpawnParticl
 
             // Create explosion
             if (this.canSpawnParticles) {
-                var spark = new Particle(this.pos.x, this.pos.y, 0, color(173, 94, 11, 200), random(13,15), random(5,9), false, 'spark', 0, true);
+                //function Particle(x, y, damageValue, colorVal, lifeSpan, radius, canSpawnParticles, particleType, rotationAngle, bounce) {
+
+                var particleData = {
+                    x: this.pos.x,
+                    y: this.pos.y,
+                    damageValue: 0,
+                    colorVal: color(173, 94, 11, 200),
+                    lifeSpan: random(13,15),
+                    radius: random(5,9),
+                    canSpawnParticles: false,
+                    particleType: 'spark',
+                    rotationAngle: 0,
+                    bounce: true
+                };
+
+                spark = new Particle(particleData);
                 explosions.push(spark);
 
-                spark = new Particle(this.pos.x + random(-5,5), this.pos.y + random(-5, 5), 0, color(206, 149, 18, 200), random(13, 15), random(5,9), false, 'spark', 0, true);
+                // Updated values
+                particleData = {
+                    x: this.pos.x + random(-5, 5),
+                    y: this.pos.y + random(-5, 5),
+                    colorVal: color(206, 149, 18, 200),
+                };
+                spark = new Particle(particleData);
                 explosions.push(spark);
             }
         }
@@ -80,8 +106,11 @@ function Particle(x, y, damageValue, colorVal, lifeSpan, radius, canSpawnParticl
             pop();
         }
         else if (this.particleType === "shell") {
-            fill(this.color);
-            rect(this.pos.x + this.diameter, this.pos.y + this.diameter, 15, 15);
+            push();
+            translate(this.pos.x + this.wHalf, this.pos.y + this.hHalf);
+            rotate(this.rotationAngle);
+            image(shell, 0, 0);
+            pop();
         }
         else {
             stroke(this.color);
