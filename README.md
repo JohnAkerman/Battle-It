@@ -34,3 +34,5 @@ Down Arrow | Steer down
 Left Arrow | Steer Left
 Right Arrow | Steer Right
 Spacebar | Toggle debug mode  
+Mouse movement | Change angle of tank turret
+Mouse Left Click | Shoot tank turret

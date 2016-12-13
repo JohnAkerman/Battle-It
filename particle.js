@@ -21,7 +21,10 @@ function Particle(x, y, damageValue, colorVal, lifeSpan, radius, canSpawnParticl
     }
 
     this.checkCollision = function (obj) {
-        var d = this.pos.dist(obj.pos);
+        var objOrigin = obj.pos.copy();
+        objOrigin.x += obj.wHalf;
+        objOrigin.y += obj.hHalf;
+        var d = this.pos.dist(objOrigin);
 
         if (d < this.diameter + obj.diameter) {
             this.active = false;
@@ -67,13 +70,19 @@ function Particle(x, y, damageValue, colorVal, lifeSpan, radius, canSpawnParticl
     this.render = function() {
         stroke(this.color);
         strokeWeight(this.radius);
-        point(this.pos.x + this.radius / 2, this.pos.y + this.radius / 2);
+        point(this.pos.x + this.diameter, this.pos.y + this.diameter);
 
         if (DEBUG) {
             noStroke();
             fill(255,255,255);
             textSize(14);
-            text("L:" + floor(this.lifeSpan), this.pos.x, this.pos.y + 20);
+            text("L:" + floor(this.lifeSpan), this.pos.x, this.pos.y + 25);
+
+            strokeWeight(1);
+            stroke(255,255,255, 100);
+            var newVector = createVector(this.vel.x, this.vel.y);
+            newVector.mult(6.25);
+            line(this.pos.x + this.diameter, this.pos.y + this.diameter, this.pos.x + newVector.x + this.diameter, this.pos.y + newVector.y + this.diameter);
         }
     }
 

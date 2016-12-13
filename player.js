@@ -13,7 +13,7 @@ function Player() {
     this.dir = 3;
     this.firing = 0;
 
-    this.turrentAngle = createVector(0, 0);
+    this.turretAngle = createVector(0, 0);
 
     this.turretW = 5;
     this.turretH = 25;
@@ -41,14 +41,14 @@ function Player() {
         stroke(0,0,0)
         strokeWeight(1);
         fill(88,88,88);
-        rect(this.pos.x - 15, this.pos.y - 30, this.indicatorBarWidth, 5);
+        rect(this.pos.x, this.pos.y - 15, this.indicatorBarWidth, 5);
 
         noStroke();
         fill(222,2,2);
 
         var statPercentage = this.health / this.maxHealth;
         var barWidth = floor(statPercentage * this.indicatorBarWidth);
-        rect(this.pos.x - 14, this.pos.y - 29, barWidth, 4);
+        rect(this.pos.x, this.pos.y - 14, barWidth, 4);
     }
 
     this.renderShield = function() {
@@ -56,14 +56,14 @@ function Player() {
         stroke(0,0,0)
         strokeWeight(1);
         fill(88,88,88);
-        rect(this.pos.x - 15, this.pos.y - 40, this.indicatorBarWidth, 5);
+        rect(this.pos.x, this.pos.y - 25, this.indicatorBarWidth, 5);
 
         noStroke();
         fill(77, 124, 153);
 
         var statPercentage = this.shield / this.maxShield;
         var barWidth = floor(statPercentage * this.indicatorBarWidth);
-        rect(this.pos.x - 14, this.pos.y - 39, barWidth -1, 4);
+        rect(this.pos.x, this.pos.y - 24, barWidth -1, 4);
     }
 
     this.doDamage = function(val) {
@@ -81,53 +81,63 @@ function Player() {
 
         this.checkBounds();
 
-        this.turrentAngle = Math.atan2(mouseY - this.pos.y, mouseX - this.pos.x) - 1.5708; // 90 deg
+        this.turretAngle = Math.atan2(mouseY - (this.pos.y + this.hHalf), mouseX - (this.pos.x  + this.wHalf)) - (PI / 2); // 90 deg
     }
 
     this.render = function() {
         noStroke();
         fill(0,0,255);
         push();
-        translate(this.pos.x, this.pos.y);
+        translate(this.pos.x + this.wHalf, this.pos.y + this.hHalf);
         rotate(radians(this.dir * 90));
         image(playerImage, 0,0, 48,48, -24, -24, 48, 48);
         pop();
 
         if (DEBUG) {
             fill(255,0,0,100);
-            ellipse(this.pos.x, this.pos.y, this.radius);
-
-            stroke(255,0,0);
-            strokeWeight(1);
-            line(this.pos.x, this.pos.y, mouseX, mouseY)
+            ellipse(this.pos.x + this.wHalf, this.pos.y + this.wHalf, this.radius);
 
             noStroke();
             fill(255,255,255);
             text("Health: - " + this.health, 0, 10);
+
+            // Collision position
+            fill(255,50,0,50);
+            rect(this.pos.x, this.pos.y, this.w, this.h);
         }
 
         noStroke();
         push();
-        translate(this.pos.x, this.pos.y);
-        rotate(this.turrentAngle);
+        translate(this.pos.x + this.wHalf, this.pos.y + this.hHalf);
+        rotate(this.turretAngle);
         translate(-24, -14);
         image(playerTurret, this.firing * 48, 0, 48, 0, 0, 0, 48, 48);
         pop();
 
+        if (DEBUG) {
+            stroke(255,0,0);
+            strokeWeight(1);
+            line(this.pos.x + this.wHalf, this.pos.y + this.hHalf, mouseX, mouseY)
+        }
+
         this.renderHealth();
         this.renderShield();
-    }
+     }
 
     this.applyForce = function(f) {
         this.accel.add(f);
     }
 
     this.checkBounds = function() {
-        reset = false;
-        if (this.pos.x < 0) { this.pos.x = 0; reset = true; this.vel.x *= -1; }
-        else if (this.pos.x + this.w >= width) { this.pos.x = width - this.w; reset = true; this.vel.x *= -1; }
+        boundsHit = false;
+        if (this.pos.x < 0) { this.pos.x = 0; boundsHit = true; this.vel.x *= -1; }
+        else if (this.pos.x + this.w >= width) { this.pos.x = width - this.w; boundsHit = true; this.vel.x *= -1; }
 
-        if (this.pos.y < 0) { this.pos.y = 0; reset = true; this.vel.y *= -1; }
-        else if (this.pos.y + this.h >= height) { this.pos.y = height - this.h; reset = true; this.vel.y *= -1;  }
+        if (this.pos.y < 0) { this.pos.y = 0; boundsHit = true; this.vel.y *= -1; }
+        else if (this.pos.y + this.h >= height) { this.pos.y = height - this.h; boundsHit = true; this.vel.y *= -1;  }
+
+        if (boundsHit) {
+            this.doDamage(5);
+        }
     }
 }

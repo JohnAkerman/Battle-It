@@ -76,9 +76,9 @@ function keyPressed() {
 
 function mousePressed() {
 	player.firing = 1;
-	var b = new Particle(player.pos.x, player.pos.y, 10, null, null, 3, true);
+	var b = new Particle(player.pos.x + player.wHalf, player.pos.y + player.hHalf, 10, null, null, 3, true);
+	var bForce = createVector(-sin(player.turretAngle), cos(player.turretAngle));
 
-	var bForce = createVector(-sin(player.turrentAngle), cos(player.turrentAngle));
 	bForce.mult(10);
 	b.applyForce(bForce);
 	bullets.push(b);
