@@ -7,7 +7,7 @@ var playerImage, playerTurret;
 var DEBUG = false;
 
 function preload() {
-	playerImage = loadImage("assets/player/player.png");
+	playerImage = loadImage("assets/player/playerWithDamage.png");
 	playerTurret = loadImage("assets/player/turret.png");
 }
 

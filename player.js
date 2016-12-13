@@ -10,6 +10,8 @@ function Player() {
     this.hHalf = this.h * .5;
     this.sizeInc = 3;
 
+    this.damageModel = 0;
+
     this.dir = 3;
     this.firing = 0;
 
@@ -29,6 +31,7 @@ function Player() {
     this.indicatorBarWidth = 32;
 
     this.stationaryFrictionThreshold = 1.0;
+
 
     this.respawn = function() {
         this.shield = this.maxShield;
@@ -71,7 +74,12 @@ function Player() {
     this.doDamage = function(val) {
         this.health -= val;
 
-        if (this.health <= 0) {
+        if (this.health == 100) { this.damageModel = 0; }
+        else if (this.health >= 80 && this.health < 100) { this.damageModel = 1; }
+        else if (this.health >= 60 && this.health < 80) { this.damageModel = 2; }
+        else if (this.health >= 40 && this.health < 60) { this.damageModel = 3; }
+        else if (this.health <= 0) {
+            this.damageModel = 4;
             this.respawn();
         }
     }
@@ -100,7 +108,7 @@ function Player() {
         push();
         translate(this.pos.x + this.wHalf, this.pos.y + this.hHalf);
         rotate(radians(this.dir * 90));
-        image(playerImage, 0,0, 48,48, -24, -24, 48, 48);
+        image(playerImage, this.damageModel * 48,0, 48,48, -24, -24, 48, 48);
         pop();
 
         if (DEBUG) {
