@@ -1,6 +1,7 @@
 var player;
 var bullets = [];
 var explosions = [];
+var grid = new Grid();
 
 var playerImage, playerTurret;
 
@@ -11,10 +12,12 @@ function preload() {
 	playerTurret = loadImage("assets/player/turret.png");
 	lightMachineBullet = loadImage("assets/player/bullet.png");
 	shell = loadImage("assets/player/shell.png");
+
+	grid.loadMap(defaultMap);
 }
 
 function setup() {
-	var ctx = createCanvas(1600, 900);
+	var ctx = createCanvas(1584, 864);
 	var x = (windowWidth - width) / 2;
 	var y = (windowHeight - height) / 2;
 	ctx.position(x,y);
@@ -51,6 +54,8 @@ function draw() {
 	player.update();
 
 	//Render
+	grid.render();
+
 	for (var i = 0; i < bullets.length; i++) {
 		bullets[i].render();
 	}
