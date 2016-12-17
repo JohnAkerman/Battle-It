@@ -11,6 +11,8 @@ function Player() {
     this.sizeInc = 3;
 
     this.damageModel = 0;
+    this.lastDmgTime = 0;
+    this.lastDmg = 0;
 
     this.dir = 3;
     this.firing = 0;
@@ -25,8 +27,15 @@ function Player() {
     this.health = 100;
     this.maxHealth = this.health;
 
-    this.shield = 20;
-    this.maxShield = this.shield;
+    this.shield = {
+        value : 10,
+        valueMax: 10,
+        time: 0,
+        lastTime: 0,
+        regenTime: 5,
+        regenRate: .05,
+        regenCoolDown: 3500
+    };
 
     this.indicatorBarWidth = 32;
 
@@ -58,12 +67,12 @@ function Player() {
             h: 25
         }
     ];
-    
+
     this.shootingCoolDown = 0;
     this.activeGun = 0;
 
     this.respawn = function() {
-        this.shield = this.maxShield;
+        this.shield.value = this.shield.valueMax;
         this.health = this.maxHealth;
         this.pos = createVector(random(10, width), random(10, height));
         this.vel.mult(0);
@@ -75,38 +84,29 @@ function Player() {
         this.shootingCoolDown = this.gunType[gunID].coolDown;
     }
 
-    this.renderHealth = function() {
-        // Background grey
+    this.renderBar = function(stat, statMax, yOffset, colour) {
         stroke(0,0,0)
         strokeWeight(1);
         fill(88,88,88);
-        rect(this.pos.x, this.pos.y - 15, this.indicatorBarWidth, 5);
+        rect(this.pos.x, this.pos.y - yOffset, this.indicatorBarWidth, 5);
 
         noStroke();
-        fill(222,2,2);
+        fill(colour);
 
-        var statPercentage = this.health / this.maxHealth;
+        var statPercentage = stat / statMax;
         var barWidth = floor(statPercentage * this.indicatorBarWidth);
-        rect(this.pos.x, this.pos.y - 14, barWidth, 4);
-    }
-
-    this.renderShield = function() {
-        // Background grey
-        stroke(0,0,0)
-        strokeWeight(1);
-        fill(88,88,88);
-        rect(this.pos.x, this.pos.y - 25, this.indicatorBarWidth, 5);
-
-        noStroke();
-        fill(77, 124, 153);
-
-        var statPercentage = this.shield / this.maxShield;
-        var barWidth = floor(statPercentage * this.indicatorBarWidth);
-        rect(this.pos.x, this.pos.y - 24, barWidth -1, 4);
+        rect(this.pos.x + 1, this.pos.y - yOffset + 1, barWidth - 1, 4);
     }
 
     this.doDamage = function(val) {
-        this.health -= val;
+
+        // If shield has been depleted, damage the hull (perma)
+        this.lastDmgTime = new Date().getTime();
+        if (this.shield.value > 0) {
+            this.shield.value -= 1;
+        } else if (this.shield.value <= 0 && this.health > 0) {
+            this.health -= val;
+        }
 
         if (this.health == 100) { this.damageModel = 0; }
         else if (this.health >= 80 && this.health < 100) { this.damageModel = 1; }
@@ -116,9 +116,24 @@ function Player() {
             this.damageModel = 4;
             this.respawn();
         }
+
+        this.lastDmg = this.lastDmgTime;
     }
 
+
     this.update = function() {
+        this.shield.time = new Date().getTime();
+
+        // If shield has been depleted, damage the hull (perma)
+        this.lastDmgTime = new Date().getTime();
+        // only regen after no damage for a while
+        if (this.lastDmgTime - this.lastDmg > this.shield.regenCoolDown) {
+            if (this.shield.value < this.shield.valueMax && this.shield.time - this.shield.lastTime > this.shield.regenTime) {
+                this.shield.value += this.shield.regenRate;
+                this.shield.lastTime = this.shield.time;
+            }
+        }
+
         if ((this.dir === 2 || this.dir === 0) && this.vel.y <= this.stationaryFrictionThreshold) { // Moving Up or Down
             this.accel.mult(0.5);
         }
@@ -152,6 +167,7 @@ function Player() {
             noStroke();
             fill(255,255,255);
             text("Health: - " + this.health, 3, 10);
+            text("Shield: - " + this.shield.value, 3, 40);
             text("Velocity - X: " + roundToPlace(this.vel.x, 3) + " Y:  " + roundToPlace(this.vel.y, 3), 3, 25);
 
             // Collision position
@@ -173,8 +189,10 @@ function Player() {
             line(this.pos.x + this.wHalf, this.pos.y + this.hHalf, mouseX, mouseY)
         }
 
-        this.renderHealth();
-        this.renderShield();
+        // this.renderHealth();
+        // this.renderShield();
+        this.renderBar(this.shield.value, this.shield.valueMax, 25, color(77, 124, 153));
+        this.renderBar(this.health, this.maxHealth, 14, color(222,2,2));
      }
 
     this.applyForce = function(f) {

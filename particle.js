@@ -62,7 +62,7 @@ function Particle(options) {
         this.checkBounds();
 
         if (this.startLifeSpan - this.lifeSpan > 15 && this.checkCollision(player)) {
-            //player.doDamage(this.damageValue);
+            player.doDamage(this.damageValue);
 
             // Create explosion
             if (this.canSpawnParticles) {
