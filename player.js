@@ -221,7 +221,11 @@ function Player() {
         translate(this.pos.x + this.wHalf, this.pos.y + this.hHalf);
         rotate(this.turretAngle);
         translate(-24, -14);
-        image(playerTurret, this.firing * 48, 0, 48, 0, 0, 0, 48, 48);
+
+        var randomShoot = (random(1) > 0.5) ? 1 : 2;
+        randomShoot = randomShoot * this.firing;
+
+        image(playerTurret, randomShoot * 48, 0, 48, 0, 0, 0, 48, 48);
         pop();
 
         if (DEBUG) {
