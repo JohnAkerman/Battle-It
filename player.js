@@ -58,6 +58,7 @@ function Player() {
             h: 25
         }
     ];
+    
     this.shootingCoolDown = 0;
     this.activeGun = 0;
 
@@ -67,6 +68,11 @@ function Player() {
         this.pos = createVector(random(10, width), random(10, height));
         this.vel.mult(0);
         this.accel.mult(0);
+    }
+
+    this.loadGun = function(gunID) {
+        this.activeGun = gunID;
+        this.shootingCoolDown = this.gunType[gunID].coolDown;
     }
 
     this.renderHealth = function() {

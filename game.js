@@ -2,7 +2,7 @@ var player;
 var bullets = [];
 var explosions = [];
 var grid = new Grid();
-
+var isClicking = false;
 var playerImage, playerTurret;
 
 var DEBUG = false;
@@ -16,14 +16,28 @@ function preload() {
 	grid.loadMap(defaultMap);
 }
 
+function mousePress() {
+	isClicking = true;
+}
+
+function mouseRelease() {
+	isClicking = false;
+}
+
 function setup() {
 	var ctx = createCanvas(1584, 864);
 	var x = (windowWidth - width) / 2;
 	var y = (windowHeight - height) / 2;
-	ctx.position(x,y);
+	ctx.parent("game");
+	ctx.mousePressed(mousePress);
+	ctx.mouseReleased(mouseRelease);
 
 	player = new Player();
 	colorMode(RGB);
+}
+
+function mouseReleased() {
+	isClicking = false;
 }
 
 function draw() {
@@ -31,7 +45,7 @@ function draw() {
 	background(29, 29, 29);
 
 	// Updates
-	if (mouseIsPressed && player.shootingCoolDown <= 0) {
+	if (isClicking && player.shootingCoolDown <= 0) {
 		fireWeapon();
 		player.shootingCoolDown = player.gunType[player.activeGun].coolDown;
 	}
@@ -67,30 +81,30 @@ function draw() {
 }
 
 function keyPressed() {
-	if (keyCode === UP_ARROW) {
+	if (keyCode === UP_ARROW || keyCode === 87) {
 		player.vel.x *= 0.1
 		player.applyForce(createVector(0, -1));
 		player.dir = 2;
-	} else if (keyCode === DOWN_ARROW) {
+	} else if (keyCode === DOWN_ARROW|| keyCode === 83) {
 		player.vel.x *= 0.1;
 		player.applyForce(createVector(0, 1));
 		player.dir = 0;
-	} else if (keyCode === RIGHT_ARROW) {
+	} else if (keyCode === RIGHT_ARROW|| keyCode === 68) {
 		player.vel.y *= 0.1
 		player.applyForce(createVector(1, 0));
 		player.dir = 3;
-	} else if (keyCode === LEFT_ARROW) {
+	} else if (keyCode === LEFT_ARROW || keyCode === 65) {
 		player.vel.y *= 0.1
 		player.applyForce(createVector(-1, 0));
 		player.dir = 1;
 	} else if (keyCode === 32) {  // Space
 		DEBUG = !DEBUG;
 	} else if (keyCode === 49) { // 1
-		player.activeGun = 0;
+		player.loadGun(0);
 	} else if (keyCode === 50) { // 2
-		player.activeGun = 1;
+		player.loadGun(1);
 	} else if (keyCode === 51) { // 3
-		player.activeGun = 2;
+		player.loadGun(2);
 	}
 
 	if (DEBUG)
@@ -119,10 +133,9 @@ function fireWeapon() {
 	}
 
 	var b = new Particle(particleData);
-	var bForce = createVector(-sin(player.turretAngle), cos(player.turretAngle));
-
-	bForce.mult(player.gunType[player.activeGun].projectileSpeed);
-	b.applyForce(bForce);
+	var force = createVector(-sin(player.turretAngle), cos(player.turretAngle));
+	force.mult(player.gunType[player.activeGun].projectileSpeed);
+	b.applyForce(force);
 	bullets.push(b);
 }
 
