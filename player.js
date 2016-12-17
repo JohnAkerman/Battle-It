@@ -37,6 +37,8 @@ function Player() {
         regenCoolDown: 3500
     };
 
+    this.tracks = [];
+
     this.indicatorBarWidth = 32;
 
     this.stationaryFrictionThreshold = 1.0;
@@ -95,6 +97,9 @@ function Player() {
 
         var statPercentage = stat / statMax;
         var barWidth = floor(statPercentage * this.indicatorBarWidth);
+        if (stat === 0) {
+            barWidth = 0;
+        }
         rect(this.pos.x + 1, this.pos.y - yOffset + 1, barWidth - 1, 4);
     }
 
@@ -143,15 +148,51 @@ function Player() {
 
         this.vel.add(this.accel);
         this.pos.add(this.vel);
+
+        if ((Math.abs(this.vel.x) > 0.1 || Math.abs(this.vel.y) > 0.1)) {
+            this.createTracks();
+        }
+
         this.accel.mult(0);
 
         this.vel.mult(0.99); // Friciton
         this.checkBounds();
 
         this.turretAngle = Math.atan2(mouseY - (this.pos.y + this.hHalf), mouseX - (this.pos.x  + this.wHalf)) - (PI / 2); // 90 deg
+
+        // Update tracks
+        for (var i = this.tracks.length-1; i >= 0; i--) {
+            this.tracks[i].lifeSpan--;
+
+            if (this.tracks[i].lifeSpan <= 0) {
+                this.tracks.splice(i, 1);
+            }
+        }
+    }
+
+    this.createTracks = function() {
+
+        var t = {
+            x: this.pos.x,
+            y: this.pos.y,
+            angle : this.dir,
+            lifeSpan: 157
+        };
+
+        this.tracks.push(t);
     }
 
     this.render = function() {
+        // Render tracks
+        for (var i = this.tracks.length-1; i >= 0; i--) {
+            push();
+            translate(this.tracks[i].x + this.wHalf, this.tracks[i].y + this.hHalf);
+            rotate(radians(this.tracks[i].angle * 90));
+            tint(255, this.tracks[i].lifeSpan);
+            image(tracks, 0 , 0, 48, 6, -24, 0, 48, 6);
+            pop();
+        }
+
         noStroke();
         fill(0,0,255);
         push();
@@ -189,8 +230,6 @@ function Player() {
             line(this.pos.x + this.wHalf, this.pos.y + this.hHalf, mouseX, mouseY)
         }
 
-        // this.renderHealth();
-        // this.renderShield();
         this.renderBar(this.shield.value, this.shield.valueMax, 25, color(77, 124, 153));
         this.renderBar(this.health, this.maxHealth, 14, color(222,2,2));
      }

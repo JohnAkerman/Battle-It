@@ -3,7 +3,7 @@ var bullets = [];
 var explosions = [];
 var grid = new Grid();
 var isClicking = false;
-var playerImage, playerTurret;
+var playerImage, playerTurret, tracks;
 
 var DEBUG = false;
 
@@ -12,6 +12,7 @@ function preload() {
 	playerTurret = loadImage("assets/player/turret.png");
 	lightMachineBullet = loadImage("assets/player/bullet.png");
 	shell = loadImage("assets/player/shell.png");
+	tracks = loadImage("assets/player/tracks.png");
 
 	grid.loadMap(defaultMap);
 }
@@ -78,6 +79,10 @@ function draw() {
 	for (var i = 0; i < explosions.length; i++) {
 		explosions[i].render();
 	}
+
+	fill(255);
+	text("FPS: " + floor(frameRate()), 3, 65);
+
 }
 
 function keyPressed() {
