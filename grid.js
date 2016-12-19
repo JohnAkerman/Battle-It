@@ -26,7 +26,15 @@ function Grid() {
     }
 
     this.getTileType = function(gridX, gridY) {
-        return this.grid[y,x];
+        return this.grid[gridY][gridX];
+    }
+
+    this.getTileTypeFromXY = function(x,y) {
+        return this.grid[this.toGrid(y)][this.toGrid(x)];
+    }
+
+    this.setTileTypeFromXY = function(x,y, type) {
+        this.grid[this.toGrid(y)][this.toGrid(x)] = type
     }
 
     this.toGrid = function(i) {

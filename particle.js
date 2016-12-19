@@ -60,41 +60,47 @@ function Particle(options) {
         this.accel.mult(0);
 
         this.checkBounds();
+        this.checkGridCollision();
 
         if (this.startLifeSpan - this.lifeSpan > 15 && this.checkCollision(player)) {
             player.doDamage(this.damageValue);
-            this.active = false;
-            this.lifeSpan = 0;
+            this.destroyParticle();
+        }
+    }
 
-            // Create explosion
-            if (this.canSpawnParticles) {
-                //function Particle(x, y, damageValue, colorVal, lifeSpan, radius, canSpawnParticles, particleType, rotationAngle, bounce) {
+    this.destroyParticle = function() {
+        this.active = false;
+        this.lifeSpan = 0;
+        this.vel.mult(0);
 
-                var particleData = {
-                    x: this.pos.x,
-                    y: this.pos.y,
-                    damageValue: 0,
-                    colorVal: color(173, 94, 11, 200),
-                    lifeSpan: random(13,15),
-                    radius: random(5,9),
-                    canSpawnParticles: false,
-                    particleType: 'spark',
-                    rotationAngle: 0,
-                    bounce: true
-                };
+        // Create explosion
+        if (this.canSpawnParticles) {
+            //function Particle(x, y, damageValue, colorVal, lifeSpan, radius, canSpawnParticles, particleType, rotationAngle, bounce) {
 
-                spark = new Particle(particleData);
-                explosions.push(spark);
+            var particleData = {
+                x: this.pos.x,
+                y: this.pos.y,
+                damageValue: 0,
+                colorVal: color(173, 94, 11, 200),
+                lifeSpan: random(13,15),
+                radius: random(5,9),
+                canSpawnParticles: false,
+                particleType: 'spark',
+                rotationAngle: 0,
+                bounce: true
+            };
 
-                // Updated values
-                particleData = {
-                    x: this.pos.x + random(-5, 5),
-                    y: this.pos.y + random(-5, 5),
-                    colorVal: color(206, 149, 18, 200),
-                };
-                spark = new Particle(particleData);
-                explosions.push(spark);
-            }
+            spark = new Particle(particleData);
+            explosions.push(spark);
+
+            // Updated values
+            particleData = {
+                x: this.pos.x + random(-5, 5),
+                y: this.pos.y + random(-5, 5),
+                colorVal: color(206, 149, 18, 200),
+            };
+            spark = new Particle(particleData);
+            explosions.push(spark);
         }
     }
 
@@ -109,7 +115,7 @@ function Particle(options) {
         }
         else if (this.particleType === "shell") {
             push();
-            translate(this.pos.x + this.wHalf, this.pos.y + this.hHalf);
+            translate(this.pos.x - this.wHalf, this.pos.y - this.hHalf);
             rotate(this.rotationAngle);
             image(shell, 0, 0);
             pop();
@@ -131,6 +137,24 @@ function Particle(options) {
             var newVector = createVector(this.vel.x, this.vel.y);
             newVector.mult(6.25);
             line(this.pos.x + this.diameter, this.pos.y + this.diameter, this.pos.x + newVector.x + this.diameter, this.pos.y + newVector.y + this.diameter);
+        }
+    }
+
+    this.checkGridCollision = function() {
+        // Get current Grid X
+
+        var gridTile = grid.getTileTypeFromXY(this.pos.x, this.pos.y);
+
+        // Check bounce
+        if (this.bounce && grid.selectedMap.bounceable.indexOf(gridTile) > -1) {
+            this.vel.mult(-1);
+        }
+
+        if (this.bounce == false && grid.selectedMap.collidable.indexOf(gridTile) > -1) {
+            if (grid.selectedMap.breakable.indexOf(gridTile) > -1) {
+                grid.setTileTypeFromXY(this.pos.x, this.pos.y, grid.selectedMap.broken);
+            }
+            this.destroyParticle();
         }
     }
 
