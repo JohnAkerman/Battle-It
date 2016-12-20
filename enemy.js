@@ -1,0 +1,298 @@
+function Enemy(obj) {
+    this.pos = createVector(grid.toPixel(obj.tileX), grid.toPixel(obj.tileY));
+    this.name = obj.name;
+    this.vel = createVector(0, 0);
+    this.accel = createVector(0,0);
+    this.w = 48;
+    this.h = 48;
+    this.radius = 48;
+    this.diameter = this.radius / 2;
+    this.wHalf = this.w * .5;
+    this.hHalf = this.h * .5;
+    this.sizeInc = 3;
+
+    this.damageModel = 0;
+    this.lastDmgTime = 0;
+    this.lastDmg = 0;
+
+    this.dir = 3;
+    this.firing = 0;
+
+    this.patrol = obj.patrol;
+    this.patrol.start.pos = createVector(grid.toPixel(this.patrol.start.tileX), grid.toPixel(this.patrol.start.tileY));
+
+    this.patrol.end.pos = createVector(grid.toPixel(this.patrol.end.tileX), grid.toPixel(this.patrol.end.tileY));
+    this.patrol.startActive = false;
+    this.patrol.nextPos = this.patrol.end.pos;
+
+    this.turretAngle = createVector(0, 0);
+
+    this.turretW = 5;
+    this.turretH = 25;
+    this.turretWHalf = this.turretW / 2;
+    this.turretHHalf = this.turretH / 2;
+
+    this.health = 100;
+    this.maxHealth = this.health;
+
+    this.shield = {
+        value : 10,
+        valueMax: 10,
+        time: 0,
+        lastTime: 0,
+        regenTime: 5,
+        regenRate: .05,
+        regenCoolDown: 3500
+    };
+
+    this.tracks = [];
+
+    this.indicatorBarWidth = 32;
+
+    this.stationaryFrictionThreshold = 1.0;
+
+    this.gunType = [
+        {
+            name: 'light-machine',
+            coolDown: 3,
+            damage: 2,
+            lifeSpan: 200,
+            projectileSpeed: 22,
+            bounce: false
+        }, {
+            name: "heavy-machine",
+            coolDown: 15,
+            damage: 10,
+            lifeSpan: 200,
+            projectileSpeed: 10,
+            bounce: true
+        }, {
+            name: "shell",
+            coolDown: 300,
+            damage: 35,
+            lifeSpan: 300,
+            projectileSpeed: 3,
+            bounce: false,
+            w: 25,
+            h: 25
+        }
+    ];
+
+    this.shootingCoolDown = 0;
+    this.activeGun = 0;
+
+    this.respawn = function() {
+        this.shield.value = this.shield.valueMax;
+        this.health = this.maxHealth;
+        this.pos = createVector(grid.toPixel(obj.tileX), grid.toPixel(obj.tileY));
+        this.vel.mult(0);
+        this.accel.mult(0);
+    }
+
+    this.loadGun = function(gunID) {
+        this.activeGun = gunID;
+        this.shootingCoolDown = this.gunType[gunID].coolDown;
+    }
+
+    this.renderBar = function(stat, statMax, yOffset, colour) {
+        stroke(0,0,0)
+        strokeWeight(1);
+        fill(88,88,88);
+        rect(this.pos.x, this.pos.y - yOffset, this.indicatorBarWidth, 5);
+
+        noStroke();
+        fill(colour);
+
+        var statPercentage = stat / statMax;
+        var barWidth = floor(statPercentage * this.indicatorBarWidth);
+        if (stat === 0) {
+            barWidth = 0;
+        }
+        rect(this.pos.x + 1, this.pos.y - yOffset + 1, barWidth - 1, 4);
+    }
+
+    this.doDamage = function(val) {
+
+        // If shield has been depleted, damage the hull (perma)
+        this.lastDmgTime = new Date().getTime();
+        if (this.shield.value > 0) {
+            this.shield.value -= 1;
+        } else if (this.shield.value <= 0 && this.health > 0) {
+            this.health -= val;
+        }
+
+        if (this.health == 100) { this.damageModel = 0; }
+        else if (this.health >= 80 && this.health < 100) { this.damageModel = 1; }
+        else if (this.health >= 60 && this.health < 80) { this.damageModel = 2; }
+        else if (this.health >= 40 && this.health < 60) { this.damageModel = 3; }
+        else if (this.health <= 0) {
+            this.damageModel = 4;
+            this.respawn();
+        }
+
+        this.lastDmg = this.lastDmgTime;
+    }
+
+
+    this.update = function() {
+        this.shield.time = new Date().getTime();
+
+        // If shield has been depleted, damage the hull (perma)
+        this.lastDmgTime = new Date().getTime();
+        // only regen after no damage for a while
+        if (this.lastDmgTime - this.lastDmg > this.shield.regenCoolDown) {
+            if (this.shield.value < this.shield.valueMax && this.shield.time - this.shield.lastTime > this.shield.regenTime) {
+                this.shield.value += this.shield.regenRate;
+                this.shield.lastTime = this.shield.time;
+            }
+        }
+
+        // Distance to target
+        var distance = p5.Vector.dist(this.pos, this.patrol.nextPos);
+
+        // If close to start, swap targets
+        if (Math.abs(distance) <= 10) {
+            this.patrol.startActive = !this.patrol.startActive;
+            if (this.patrol.startActive) {
+                this.patrol.nextPos = this.patrol.start.pos;
+            } else {
+                this.patrol.nextPos = this.patrol.end.pos;
+            }
+        }
+
+        var d = p5.Vector.sub(this.pos, this.patrol.nextPos);
+        d = d.normalize();
+        d.mult(-.04);
+        this.applyForce(d);
+
+        if ((this.dir === 2 || this.dir === 0) && this.vel.y <= this.stationaryFrictionThreshold) { // Moving Up or Down
+            this.accel.mult(0.5);
+        }
+        else if ((this.dir === 1 || this.dir === 3) && this.vel.x <= this.stationaryFrictionThreshold) { // Moving Left or Right
+            this.accel.mult(0.5);
+        }
+
+        this.vel.add(this.accel);
+        this.pos.add(this.vel);
+
+        if ((Math.abs(this.vel.x) > 0.1 || Math.abs(this.vel.y) > 0.1)) {
+            this.createTracks();
+        }
+
+        this.accel.mult(0);
+
+        this.vel.mult(0.99); // Friciton
+        this.checkBounds();
+
+        this.turretAngle = Math.atan2(player.pos.y - (this.pos.y + this.hHalf), player.pos.x - (this.pos.x  + this.wHalf)) - (PI / 2); // 90 deg
+
+        // Update tracks
+        for (var i = this.tracks.length-1; i >= 0; i--) {
+            this.tracks[i].lifeSpan--;
+
+            if (this.tracks[i].lifeSpan <= 0) {
+                this.tracks.splice(i, 1);
+            }
+        }
+    }
+
+    this.createTracks = function() {
+
+        var t = {
+            x: this.pos.x,
+            y: this.pos.y,
+            angle : this.dir,
+            lifeSpan: 157
+        };
+
+        this.tracks.push(t);
+    }
+
+    this.render = function() {
+        // Render tracks
+        for (var i = this.tracks.length-1; i >= 0; i--) {
+            push();
+            translate(this.tracks[i].x + this.wHalf, this.tracks[i].y + this.hHalf);
+            rotate(radians(this.tracks[i].angle * 90));
+            tint(255, this.tracks[i].lifeSpan);
+            image(tracks, 0 , 0, 48, 6, -24, 0, 48, 6);
+            pop();
+        }
+
+        noStroke();
+        fill(0,0,255);
+        push();
+        translate(this.pos.x + this.wHalf, this.pos.y + this.hHalf);
+        rotate(radians(this.dir * 90));
+        image(playerImage, this.damageModel * 48,0, 48,48, -24, -24, 48, 48);
+        pop();
+        noStroke();
+        fill(255,255,255);
+        text(this.name, this.pos.x, this.pos.y + 3);
+
+        if (DEBUG) {
+            fill(255,0,0,100);
+            ellipse(this.pos.x + this.wHalf, this.pos.y + this.wHalf, this.radius);
+
+            // Collision position
+            fill(255,50,0,50);
+            rect(this.pos.x, this.pos.y, this.w, this.h);
+
+            // Start Patrol position
+            if (this.patrol) {
+                // startActive
+                fill(0,255,0,50);
+                rect(grid.toPixel(this.patrol.start.tileX), grid.toPixel(this.patrol.start.tileY), this.w, this.h);
+
+                // End
+                fill(255,0,0,50);
+                rect(grid.toPixel(this.patrol.end.tileX), grid.toPixel(this.patrol.end.tileY), this.w, this.h);
+
+                // Target
+                fill(0,0,255,50);
+                rect(this.patrol.nextPos.x, this.patrol.nextPos.y, this.w, this.h);
+
+
+
+                stroke(100);
+                strokeWeight(1);
+                line(this.pos.x + this.wHalf, this.pos.y + this.wHalf, this.patrol.nextPos.x + this.wHalf, this.patrol.nextPos.y + this.wHalf)
+            }
+        }
+
+        noStroke();
+        push();
+        translate(this.pos.x + this.wHalf, this.pos.y + this.hHalf);
+        rotate(this.turretAngle);
+        translate(-24, -14);
+
+        var randomShoot = (random(1) > 0.5) ? 1 : 2;
+        randomShoot = randomShoot * this.firing;
+
+        image(playerTurret, randomShoot * 48, 0, 48, 0, 0, 0, 48, 48);
+        pop();
+
+        this.renderBar(this.shield.value, this.shield.valueMax, 25, color(77, 124, 153));
+        this.renderBar(this.health, this.maxHealth, 14, color(222,2,2));
+     }
+
+    this.applyForce = function(f) {
+        this.accel.add(f);
+    }
+
+    this.checkBounds = function() {
+        boundsHit = false;
+        if (this.pos.x < 0) { this.pos.x = 0; boundsHit = true; this.vel.x *= -1; }
+        else if (this.pos.x + this.w >= width) { this.pos.x = width - this.w; boundsHit = true; this.vel.x *= -1; }
+
+        if (this.pos.y < 0) { this.pos.y = 0; boundsHit = true; this.vel.y *= -1; }
+        else if (this.pos.y + this.h >= height) { this.pos.y = height - this.h; boundsHit = true; this.vel.y *= -1;  }
+
+        if (boundsHit) {
+            var impactHighest = Math.abs((Math.abs(this.vel.x) > Math.abs(this.vel.y)) ? this.vel.x : this.vel.y);
+            impactHighest = constrain(Math.ceil(impactHighest), 1, 10);
+            this.doDamage(5 * impactHighest);
+            this.vel.mult(0.75);
+        }
+    }
+}

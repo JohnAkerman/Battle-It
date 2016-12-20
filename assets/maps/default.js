@@ -31,4 +31,23 @@ var defaultMap = {
     collidable: [1,2,3],
 	bounceable: [1],
     broken: 4,
+    enemies: [
+        {
+            name: "Bob",
+            tileX: 4,
+            tileY: 2,
+            AI: 'pathing',
+            canShoot: false,
+            patrol: {
+                start: {
+                    tileX:  4,
+                    tileY: 2,
+                },
+                end: {
+                    tileX:  12,
+                    tileY: 2,
+                },
+            }
+        }
+    ]
 };

@@ -1,6 +1,8 @@
 var player;
 var bullets = [];
 var explosions = [];
+var enemies = [];
+
 var grid = new Grid();
 var isClicking = false;
 var playerImage, playerTurret, tracks;
@@ -17,13 +19,8 @@ function preload() {
 	grid.loadMap(defaultMap);
 }
 
-function mousePress() {
-	isClicking = true;
-}
-
-function mouseRelease() {
-	isClicking = false;
-}
+function mousePress() {	isClicking = true; }
+function mouseRelease() { isClicking = false; }
 
 function setup() {
 	var ctx = createCanvas(1584, 864);
@@ -34,6 +31,9 @@ function setup() {
 	ctx.mouseReleased(mouseRelease);
 
 	player = new Player();
+	var test = defaultMap.enemies[0];
+	e = new Enemy(test);
+	enemies.push(e);
 	colorMode(RGB);
 }
 
@@ -66,6 +66,14 @@ function draw() {
 			explosions.splice(i, 1);
 		}
 	}
+
+	for (var i = enemies.length - 1; i >= 0; i--) {
+		enemies[i].update();
+		if (enemies[i].active == false) {
+			enemies.splice(i, 1);
+		}
+	}
+
 	player.update();
 
 	//Render
@@ -78,6 +86,10 @@ function draw() {
 
 	for (var i = 0; i < explosions.length; i++) {
 		explosions[i].render();
+	}
+
+	for (var i = 0; i < enemies.length; i++) {
+		enemies[i].render();
 	}
 
 	fill(255);

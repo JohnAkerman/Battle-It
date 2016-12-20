@@ -46,7 +46,7 @@ function Grid() {
     }
 
     this.toPixels = function(gridX, gridY) {
-        return [this.toPixel(i), this.toPixel(j)];
+        return [this.toPixel(gridX), this.toPixel(gridX)];
     }
 
     this.render = function() {
