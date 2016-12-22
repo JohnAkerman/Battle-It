@@ -107,36 +107,36 @@ function Particle(options) {
     this.render = function() {
 
         if (this.particleType === "light-machine") {
-            push();
-            translate(this.pos.x, this.pos.y);
-            rotate(this.rotationAngle);
-            image(lightMachineBullet, 0, 0);
-            pop();
+            offscreenBuffer.push();
+            offscreenBuffer.translate(this.pos.x, this.pos.y);
+            offscreenBuffer.rotate(this.rotationAngle);
+            offscreenBuffer.image(lightMachineBullet, 0, 0);
+            offscreenBuffer.pop();
         }
         else if (this.particleType === "shell") {
-            push();
-            translate(this.pos.x - this.wHalf, this.pos.y - this.hHalf);
-            rotate(this.rotationAngle);
-            image(shell, 0, 0);
-            pop();
+            offscreenBuffer.push();
+            offscreenBuffer.translate(this.pos.x - this.wHalf, this.pos.y - this.hHalf);
+            offscreenBuffer.rotate(this.rotationAngle);
+            offscreenBuffer.image(shell, 0, 0);
+            offscreenBuffer.pop();
         }
         else {
-            stroke(this.color);
-            strokeWeight(this.radius);
-            point(this.pos.x + this.diameter, this.pos.y + this.diameter);
+            offscreenBuffer.stroke(this.color);
+            offscreenBuffer.strokeWeight(this.radius);
+            offscreenBuffer.point(this.pos.x + this.diameter, this.pos.y + this.diameter);
         }
 
         if (DEBUG) {
-            noStroke();
-            fill(255,255,255);
-            textSize(14);
-            text("L:" + floor(this.lifeSpan), this.pos.x, this.pos.y + 25);
+            offscreenBuffer.noStroke();
+            offscreenBuffer.fill(255,255,255);
+            offscreenBuffer.textSize(14);
+            offscreenBuffer.text("L:" + floor(this.lifeSpan), this.pos.x, this.pos.y + 25);
 
-            strokeWeight(1);
-            stroke(255,255,255, 100);
+            offscreenBuffer.strokeWeight(1);
+            offscreenBuffer.stroke(255,255,255, 100);
             var newVector = createVector(this.vel.x, this.vel.y);
             newVector.mult(6.25);
-            line(this.pos.x + this.diameter, this.pos.y + this.diameter, this.pos.x + newVector.x + this.diameter, this.pos.y + newVector.y + this.diameter);
+            offscreenBuffer.line(this.pos.x + this.diameter, this.pos.y + this.diameter, this.pos.x + newVector.x + this.diameter, this.pos.y + newVector.y + this.diameter);
         }
     }
 

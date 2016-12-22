@@ -95,20 +95,20 @@ function Enemy(obj) {
     }
 
     this.renderBar = function(stat, statMax, yOffset, colour) {
-        stroke(0,0,0)
-        strokeWeight(1);
-        fill(88,88,88);
-        rect(this.pos.x, this.pos.y - yOffset, this.indicatorBarWidth, 5);
+        offscreenBuffer.stroke(0,0,0)
+        offscreenBuffer.strokeWeight(1);
+        offscreenBuffer.fill(88,88,88);
+        offscreenBuffer.rect(this.pos.x, this.pos.y - yOffset, this.indicatorBarWidth, 5);
 
-        noStroke();
-        fill(colour);
+        offscreenBuffer.noStroke();
+        offscreenBuffer.fill(colour);
 
         var statPercentage = stat / statMax;
         var barWidth = floor(statPercentage * this.indicatorBarWidth);
         if (stat === 0) {
             barWidth = 0;
         }
-        rect(this.pos.x + 1, this.pos.y - yOffset + 1, barWidth - 1, 4);
+        offscreenBuffer.rect(this.pos.x + 1, this.pos.y - yOffset + 1, barWidth - 1, 4);
     }
 
     this.doDamage = function(val) {
@@ -211,66 +211,65 @@ function Enemy(obj) {
     this.render = function() {
         // Render tracks
         for (var i = this.tracks.length-1; i >= 0; i--) {
-            push();
-            translate(this.tracks[i].x + this.wHalf, this.tracks[i].y + this.hHalf);
-            rotate(radians(this.tracks[i].angle * 90));
-            tint(255, this.tracks[i].lifeSpan);
-            image(tracks, 0 , 0, 48, 6, -24, 0, 48, 6);
-            pop();
+            offscreenBuffer.push();
+            offscreenBuffer.translate(this.tracks[i].x + this.wHalf, this.tracks[i].y + this.hHalf);
+            offscreenBuffer.rotate(radians(this.tracks[i].angle * 90));
+            if (RENDERTRACKSALPHA)
+                offscreenBuffer.tint(255, this.tracks[i].lifeSpan);
+            offscreenBuffer.image(tracks, 0 , 0, 48, 6, -24, 0, 48, 6);
+            offscreenBuffer.pop();
         }
 
-        noStroke();
-        fill(0,0,255);
-        push();
-        translate(this.pos.x + this.wHalf, this.pos.y + this.hHalf);
-        rotate(radians(this.dir * 90));
-        image(playerImage, this.damageModel * 48,0, 48,48, -24, -24, 48, 48);
-        pop();
-        noStroke();
-        fill(255,255,255);
-        text(this.name, this.pos.x, this.pos.y + 3);
+        offscreenBuffer.noStroke();
+        offscreenBuffer.fill(0,0,255);
+        offscreenBuffer.push();
+        offscreenBuffer.translate(this.pos.x + this.wHalf, this.pos.y + this.hHalf);
+        offscreenBuffer.rotate(radians(this.dir * 90));
+        offscreenBuffer.image(playerImage, this.damageModel * 48,0, 48,48, -24, -24, 48, 48);
+        offscreenBuffer.pop();
+        offscreenBuffer.noStroke();
+        offscreenBuffer.fill(255,255,255);
+        offscreenBuffer.text(this.name, this.pos.x, this.pos.y + 3);
 
         if (DEBUG) {
-            fill(255,0,0,100);
-            ellipse(this.pos.x + this.wHalf, this.pos.y + this.wHalf, this.radius);
+            offscreenBuffer.fill(255,0,0,100);
+            offscreenBuffer.ellipse(this.pos.x + this.wHalf, this.pos.y + this.wHalf, this.radius);
 
             // Collision position
-            fill(255,50,0,50);
-            rect(this.pos.x, this.pos.y, this.w, this.h);
+            offscreenBuffer.fill(255,50,0,50);
+            offscreenBuffer.rect(this.pos.x, this.pos.y, this.w, this.h);
 
             // Start Patrol position
             if (this.patrol) {
                 // startActive
-                fill(0,255,0,50);
-                rect(grid.toPixel(this.patrol.start.tileX), grid.toPixel(this.patrol.start.tileY), this.w, this.h);
+                offscreenBuffer.fill(0,255,0,50);
+                offscreenBuffer.rect(grid.toPixel(this.patrol.start.tileX), grid.toPixel(this.patrol.start.tileY), this.w, this.h);
 
                 // End
-                fill(255,0,0,50);
-                rect(grid.toPixel(this.patrol.end.tileX), grid.toPixel(this.patrol.end.tileY), this.w, this.h);
+                offscreenBuffer.fill(255,0,0,50);
+                offscreenBuffer.rect(grid.toPixel(this.patrol.end.tileX), grid.toPixel(this.patrol.end.tileY), this.w, this.h);
 
                 // Target
-                fill(0,0,255,50);
-                rect(this.patrol.nextPos.x, this.patrol.nextPos.y, this.w, this.h);
+                offscreenBuffer.fill(0,0,255,50);
+                offscreenBuffer.rect(this.patrol.nextPos.x, this.patrol.nextPos.y, this.w, this.h);
 
-
-
-                stroke(100);
-                strokeWeight(1);
-                line(this.pos.x + this.wHalf, this.pos.y + this.wHalf, this.patrol.nextPos.x + this.wHalf, this.patrol.nextPos.y + this.wHalf)
+                offscreenBuffer.stroke(100);
+                offscreenBuffer.strokeWeight(1);
+                offscreenBuffer.line(this.pos.x + this.wHalf, this.pos.y + this.wHalf, this.patrol.nextPos.x + this.wHalf, this.patrol.nextPos.y + this.wHalf)
             }
         }
 
-        noStroke();
-        push();
-        translate(this.pos.x + this.wHalf, this.pos.y + this.hHalf);
-        rotate(this.turretAngle);
-        translate(-24, -14);
+        offscreenBuffer.noStroke();
+        offscreenBuffer.push();
+        offscreenBuffer.translate(this.pos.x + this.wHalf, this.pos.y + this.hHalf);
+        offscreenBuffer.rotate(this.turretAngle);
+        offscreenBuffer.translate(-24, -14);
 
         var randomShoot = (random(1) > 0.5) ? 1 : 2;
         randomShoot = randomShoot * this.firing;
 
-        image(playerTurret, randomShoot * 48, 0, 48, 0, 0, 0, 48, 48);
-        pop();
+        offscreenBuffer.image(playerTurret, randomShoot * 48, 0, 48, 0, 0, 0, 48, 48);
+        offscreenBuffer.pop();
 
         this.renderBar(this.shield.value, this.shield.valueMax, 25, color(77, 124, 153));
         this.renderBar(this.health, this.maxHealth, 14, color(222,2,2));

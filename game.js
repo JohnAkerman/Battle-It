@@ -8,6 +8,12 @@ var isClicking = false;
 var playerImage, playerTurret, tracks;
 
 var DEBUG = false;
+var RENDERBITMAPS = true;
+var RENDERGRID = true;
+var RENDERTRACKSALPHA = true;
+
+
+var offscreenBuffer;
 
 function preload() {
 	playerImage = loadImage("assets/player/playerWithDamage.png");
@@ -24,6 +30,7 @@ function mouseRelease() { isClicking = false; }
 
 function setup() {
 	var ctx = createCanvas(1584, 864);
+	offscreenBuffer = createGraphics(width, height);
 	var x = (windowWidth - width) / 2;
 	var y = (windowHeight - height) / 2;
 	ctx.parent("game");
@@ -42,8 +49,7 @@ function mouseReleased() {
 }
 
 function draw() {
-	background(0, 255);
-	background(29, 29, 29);
+	offscreenBuffer.background(29, 29, 29);
 
 	// Updates
 	if (isClicking && player.shootingCoolDown <= 0) {
@@ -77,7 +83,8 @@ function draw() {
 	player.update();
 
 	//Render
-	grid.render();
+	if (RENDERGRID)
+		grid.render();
 
 	for (var i = 0; i < bullets.length; i++) {
 		bullets[i].render();
@@ -92,8 +99,12 @@ function draw() {
 		enemies[i].render();
 	}
 
-	fill(255);
-	text("FPS: " + floor(frameRate()), 3, 65);
+	offscreenBuffer.fill(255);
+	offscreenBuffer.text("FPS: " + floor(frameRate()), 3, 65);
+
+	fill(0);
+	rect(0,0,width,height);
+	image(offscreenBuffer, 0,0);
 
 }
 
@@ -126,6 +137,15 @@ function keyPressed() {
 
 	if (DEBUG)
 		console.log(keyCode);
+
+	if (keyCode == 13)
+		RENDERBITMAPS = !RENDERBITMAPS;
+
+	if (keyCode == 71)
+		RENDERGRID = !RENDERGRID;
+
+	if (keyCode == 84)
+		RENDERTRACKSALPHA = !RENDERTRACKSALPHA;
 }
 
 

@@ -52,11 +52,12 @@ function Grid() {
     this.render = function() {
         for(var y = 0; y < this.grid.length; y++) {
             for (var x = 0 ; x < this.grid[y].length; x++) {
-                if (this.bitmapKeys.indexOf( this.grid[y][x].toString() ) !== -1) { // Its an image
-                    image(this.selectedMap.tiles[this.grid[y][x]], this.toPixel(x), this.toPixel(y));
+                if (RENDERBITMAPS && this.bitmapKeys.indexOf( this.grid[y][x].toString() ) !== -1) { // Its an image
+                    offscreenBuffer.image(this.selectedMap.tiles[this.grid[y][x]], this.toPixel(x), this.toPixel(y));
                 } else {
-                    fill(0,255,0, 100);
-                    rect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
+                    offscreenBuffer.stroke(0);
+                    offscreenBuffer.fill(255, 100);
+                    offscreenBuffer.rect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
                 }
 
             }
